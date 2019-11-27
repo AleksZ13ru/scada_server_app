@@ -1,0 +1,1 @@
+https://github.com/celery/celery/issues/4178  проблемы с celery в windows
