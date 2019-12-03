@@ -63,3 +63,45 @@ class Result(models.Model):
             my_list.append(0)
         my_list.append(value)
         return json.dumps(my_list)
+
+
+class MessageTag(models.Model):
+    enable = models.BooleanField(default=False)
+    name = models.CharField(max_length=20)
+    server = models.ForeignKey(Server, on_delete=models.CASCADE)
+    url = models.CharField(max_length=20)
+
+    def server_name(self):
+        return self.server.name
+
+    def __str__(self):
+        return '{0} = {1}/{2}'.format(self.name, self.server.name, self.url)
+
+
+class MessageBit(models.Model):
+    name = models.CharField(max_length=20)
+    tag = models.ForeignKey(MessageTag, on_delete=models.CASCADE)
+    bit = models.IntegerField()
+    text = models.CharField(max_length=200)
+
+    def tag_name(self):
+        return self.tag.name
+
+    def __str__(self):
+        return '{0} = {1}:{2}'.format(self.name, self.tag.name, self.bit)
+
+
+class MessageEvent(models.Model):
+    bit = models.ForeignKey(MessageBit, on_delete=models.CASCADE)
+    event_dt = models.DateTimeField()
+    ask_dt = models.DateTimeField(blank=True, null=True)
+
+    def text(self):
+        if len(self.bit.text) > 40:
+            return self.bit.text[0:40] + ' ...'
+        return self.bit.text
+
+    def ask_status(self):
+        if self.ask_dt is None:
+            return "actual"
+        return "ok"
