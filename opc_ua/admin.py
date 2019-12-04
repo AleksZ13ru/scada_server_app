@@ -23,7 +23,7 @@ class MessageBitAdmin(admin.ModelAdmin):
 
 
 class MessageEventAdmin(admin.ModelAdmin):
-    list_display = ('text', 'ask_status')
+    list_display = ('text', 'ask_status', 'event_dt', 'ask_dt')
 
 
 admin.site.register(Server, ServerAdmin)

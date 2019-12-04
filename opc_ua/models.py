@@ -93,7 +93,7 @@ class MessageBit(models.Model):
 
 class MessageEvent(models.Model):
     bit = models.ForeignKey(MessageBit, on_delete=models.CASCADE)
-    event_dt = models.DateTimeField()
+    event_dt = models.DateTimeField(default=timezone.now())
     ask_dt = models.DateTimeField(blank=True, null=True)
 
     def text(self):
@@ -105,3 +105,23 @@ class MessageEvent(models.Model):
         if self.ask_dt is None:
             return "actual"
         return "ok"
+
+    @staticmethod
+    def create(tag, bit):
+        try:
+            bit_instance = MessageBit.objects.get(tag=tag, bit=bit)
+            event_instance = MessageEvent.objects.get(bit=bit_instance, ask_dt=None)
+        except ObjectDoesNotExist:
+            bit_instance = MessageBit.objects.get(tag=tag, bit=bit)
+            event_instance = MessageEvent.objects.create(bit=bit_instance, event_dt=timezone.now(),  ask_dt=None)
+            event_instance.save()
+
+    @staticmethod
+    def ask(tag, bit):
+        try:
+            bit_instance = MessageBit.objects.get(tag=tag, bit=bit)
+            event_instance = MessageEvent.objects.get(bit=bit_instance, ask_dt=None)
+            event_instance.ask_dt = timezone.now()
+            event_instance.save()
+        except ObjectDoesNotExist:
+            pass
