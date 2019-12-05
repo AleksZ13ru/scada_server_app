@@ -6,8 +6,9 @@ from opcua import Client
 sys.path.insert(0, "..")
 
 
-def repack_word(word):
+def repack_word(tag_value):
     # return (word[8:16]+word[0:8])[::-1]
+    word = format(tag_value, 'b').rjust(16, '0')
     return word[::-1]
 
 
@@ -31,12 +32,11 @@ def read_opc_ua():
             for tag in message_tags:
                 var = client.get_node(tag.url)
                 tag_value = var.get_value()
-                for idx, bit in enumerate(repack_word(format(tag_value, 'b').rjust(16, '0'))):
+                for idx, bit in enumerate(repack_word(tag_value)):
                     if bit == '1':
                         MessageEvent.create(tag=tag, bit=idx)
-                        print(bit + ' - ' + str(i))
+                        print(bit + ' - ' + str(idx))
                     if bit == '0':
                         MessageEvent.ask(tag=tag, bit=idx)
-                    i += 1
         finally:
             client.disconnect()
