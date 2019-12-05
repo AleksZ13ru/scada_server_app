@@ -6,6 +6,11 @@ from opcua import Client
 sys.path.insert(0, "..")
 
 
+def repack_word(word):
+    # return (word[8:16]+word[0:8])[::-1]
+    return word[::-1]
+
+
 def read_opc_ua():
     servers = Server.objects.filter(enable=True)
     for server in servers:
@@ -21,27 +26,17 @@ def read_opc_ua():
                 Result.add(tag=tag, value=value, status=1)
                 print("{0} = {1}".format(tag.name, value))
 
-            # message_events = MessageEvent.objects.filter(ask_dt=None)
             message_tags = MessageTag.objects.filter(enable=True)
 
             for tag in message_tags:
                 var = client.get_node(tag.url)
                 tag_value = var.get_value()
-
-                # if tag_value != 0:
-                i = 0
-                for bit in format(tag_value, 'b').rjust(16, '0'):
+                for idx, bit in enumerate(repack_word(format(tag_value, 'b').rjust(16, '0'))):
                     if bit == '1':
-                        MessageEvent.create(tag=tag, bit=i)
+                        MessageEvent.create(tag=tag, bit=idx)
                         print(bit + ' - ' + str(i))
                     if bit == '0':
-                        MessageEvent.ask(tag=tag, bit=i)
+                        MessageEvent.ask(tag=tag, bit=idx)
                     i += 1
-                # if tag_value == 0:
-                #     message_events = MessageEvent.objects.filter(ask_dt=None, bit__tag=tag)
-                #     for message_event in message_events:
-                #         message_event.ask()
-                        # print('add code reset ask status!')
-
         finally:
             client.disconnect()

@@ -108,20 +108,33 @@ class MessageEvent(models.Model):
 
     @staticmethod
     def create(tag, bit):
-        try:
-            bit_instance = MessageBit.objects.get(tag=tag, bit=bit)
-            event_instance = MessageEvent.objects.get(bit=bit_instance, ask_dt=None)
-        except ObjectDoesNotExist:
-            bit_instance = MessageBit.objects.get(tag=tag, bit=bit)
-            event_instance = MessageEvent.objects.create(bit=bit_instance, event_dt=timezone.now(),  ask_dt=None)
+        if MessageBit.objects.filter(tag=tag, bit=bit).exists() is False:
+            bit_instance = MessageBit.objects.create(name='auto create', tag=tag, bit=bit,
+                                                     text='Not create in DB')
+            bit_instance.save()
+
+        bit_instance = MessageBit.objects.get(tag=tag, bit=bit)
+        if MessageEvent.objects.filter(bit=bit_instance, ask_dt=None).exists() is False:
+            event_instance = MessageEvent.objects.create(bit=bit_instance, event_dt=timezone.now(), ask_dt=None)
             event_instance.save()
+
+        # else:
+        #     bit_instance = MessageBit.objects.create(tag=tag, bit=bit)
+        #     bit_instance.save()
+        #
+        # try:
+        #     bit_instance = MessageBit.objects.get(tag=tag, bit=bit)
+        #     event_instance = MessageEvent.objects.get(bit=bit_instance, ask_dt=None)
+        # except ObjectDoesNotExist:
+        #     bit_instance = MessageBit.objects.get(tag=tag, bit=bit)
+        #     event_instance = MessageEvent.objects.create(bit=bit_instance, event_dt=timezone.now(),  ask_dt=None)
+        #     event_instance.save()
 
     @staticmethod
     def ask(tag, bit):
-        try:
+        if MessageBit.objects.filter(tag=tag, bit=bit).exists():
             bit_instance = MessageBit.objects.get(tag=tag, bit=bit)
-            event_instance = MessageEvent.objects.get(bit=bit_instance, ask_dt=None)
-            event_instance.ask_dt = timezone.now()
-            event_instance.save()
-        except ObjectDoesNotExist:
-            pass
+            if MessageEvent.objects.filter(bit=bit_instance, ask_dt=None).exists():
+                event_instance = MessageEvent.objects.get(bit=bit_instance, ask_dt=None)
+                event_instance.ask_dt = timezone.now()
+                event_instance.save()
