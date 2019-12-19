@@ -163,6 +163,6 @@ CELERY_BEAT_SCHEDULE = {
     # },
     'opc_ua_read_server': {
         'task': 'opc_ua.tasks.read_server',
-        'schedule': 5.0,
+        'schedule': 10.0,
     }
 }

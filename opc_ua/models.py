@@ -17,9 +17,9 @@ class Server(models.Model):
 
 class Tag(models.Model):
     enable = models.BooleanField(default=False)
-    name = models.CharField(max_length=20)
+    name = models.CharField(max_length=120)
     server = models.ForeignKey(Server, on_delete=models.CASCADE)
-    url = models.CharField(max_length=20)
+    url = models.CharField(max_length=120)
 
     def server_name(self):
         return self.server.name
@@ -67,9 +67,9 @@ class Result(models.Model):
 
 class MessageTag(models.Model):
     enable = models.BooleanField(default=False)
-    name = models.CharField(max_length=20)
+    name = models.CharField(max_length=120)
     server = models.ForeignKey(Server, on_delete=models.CASCADE)
-    url = models.CharField(max_length=20)
+    url = models.CharField(max_length=120)
 
     def server_name(self):
         return self.server.name
@@ -79,7 +79,7 @@ class MessageTag(models.Model):
 
 
 class MessageBit(models.Model):
-    name = models.CharField(max_length=20)
+    name = models.CharField(max_length=120)
     tag = models.ForeignKey(MessageTag, on_delete=models.CASCADE)
     bit = models.IntegerField()
     text = models.CharField(max_length=200)

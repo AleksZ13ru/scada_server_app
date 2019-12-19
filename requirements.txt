@@ -16,7 +16,7 @@ importlib-metadata==0.23
 kombu==4.6.6
 lxml==4.4.2
 more-itertools==7.2.0
-opcua==0.98.7
+opcua>=0.98.7
 promise==2.2.1
 pycparser==2.19
 PyJWT==1.7.1
