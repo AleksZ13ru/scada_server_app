@@ -65,6 +65,29 @@ class Result(models.Model):
         return json.dumps(my_list)
 
 
+class ResultOneMinute(models.Model):
+    tag = models.ForeignKey(Tag, on_delete=models.CASCADE)
+    period = models.IntegerField(default=1)
+    lost_time = models.DateTimeField()
+    value = models.TextField(default='[]')
+
+    @staticmethod
+    def add(tag, value=0, status=0):
+        current_time = timezone.now().time()
+        total_minute = (current_time.hour * 60 + current_time.minute)
+        try:
+            result_instance = ResultOneMinute.objects.get_or_create(tag=tag, date=timezone.now())[0]
+            # old_value = result_instance.value
+            # old_status = result_instance.status
+            # result_instance.value = Result.create_list(old_value, total_minute, value)
+            # result_instance.status = Result.create_list(old_status, total_minute, status)
+            # result_instance.save()
+
+        except ObjectDoesNotExist:
+            print("opc_ua_models_ObjectDoesNotExist")
+            pass
+
+
 class MessageTag(models.Model):
     enable = models.BooleanField(default=False)
     name = models.CharField(max_length=120)
