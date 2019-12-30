@@ -1,6 +1,6 @@
 from __future__ import absolute_import
 import sys
-from opc_ua.models import Server, Tag, Result, MessageTag, MessageEvent
+from opc_ua.models import Server, Tag, Result, ResultOneMinute, MessageTag, MessageEvent
 from opcua import Client
 
 sys.path.insert(0, "..")
@@ -24,7 +24,8 @@ def read_opc_ua():
                 value = var.get_value()
                 if type(value) == float:
                     value = round(value, 2)
-                Result.add(tag=tag, value=value, status=1)
+                # Result.add(tag=tag, value=value, status=1)
+                ResultOneMinute.add(tag=tag, value=value, status=1)
                 print("{0} = {1}".format(tag.name, value))
 
             message_tags = MessageTag.objects.filter(enable=True)
@@ -38,5 +39,7 @@ def read_opc_ua():
                         print(bit + ' - ' + str(idx))
                     if bit == '0':
                         MessageEvent.ask(tag=tag, bit=idx)
+        except AttributeError:
+            pass
         finally:
             client.disconnect()

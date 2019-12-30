@@ -73,19 +73,30 @@ class ResultOneMinute(models.Model):
 
     @staticmethod
     def add(tag, value=0, status=0):
+        result_instance = ResultOneMinute.objects.get_or_create(tag=tag, lost_time=timezone.now())[0]
         current_time = timezone.now().time()
-        total_minute = (current_time.hour * 60 + current_time.minute)
-        try:
-            result_instance = ResultOneMinute.objects.get_or_create(tag=tag, date=timezone.now())[0]
-            # old_value = result_instance.value
-            # old_status = result_instance.status
-            # result_instance.value = Result.create_list(old_value, total_minute, value)
-            # result_instance.status = Result.create_list(old_status, total_minute, status)
-            # result_instance.save()
+        current_sec = current_time.minute * 60 + current_time.second
+        lost_time_sec = result_instance.lost_time.minute * 60 + result_instance.lost_time.second
+        if (current_sec - lost_time_sec) < 60:
+            ResultOneMinute.create_list(result_instance.value, (current_sec - lost_time_sec) / result_instance.period, value)
+        else:
+            my_list = json.loads(result_instance.value)
+            sum_v = 0
+            for v in my_list:
+                sum_v += v
+            mean = sum_v / my_list.len
+            Result.add(tag=tag, value=mean, status=1)
+            result_instance.lost_time = timezone.now()
+            result_instance.value = '[]'
+            result_instance.save()
 
-        except ObjectDoesNotExist:
-            print("opc_ua_models_ObjectDoesNotExist")
-            pass
+    @staticmethod
+    def create_list(old_list, full_length, value):
+        my_list = json.loads(old_list)[:full_length]
+        while len(my_list) < full_length:
+            my_list.append(0)
+        my_list.append(value)
+        return json.dumps(my_list)
 
 
 class MessageTag(models.Model):
