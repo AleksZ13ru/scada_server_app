@@ -71,6 +71,12 @@ class ResultOneMinute(models.Model):
     lost_time = models.DateTimeField()
     value = models.TextField(default='[]')
 
+    def tag_name(self):
+        return self.tag.name
+
+    def display_len(self):
+        return '%d' % (len(json.loads(self.value)))
+
     @staticmethod
     def add(tag, value=0, status=0):
         result_instance = ResultOneMinute.objects.get_or_create(tag=tag, lost_time=timezone.now())[0]
@@ -78,6 +84,13 @@ class ResultOneMinute(models.Model):
         current_sec = current_time.minute * 60 + current_time.second
         lost_time_sec = result_instance.lost_time.minute * 60 + result_instance.lost_time.second
         if (current_sec - lost_time_sec) < 60:
+            print('old_list: ' + result_instance.value)
+            print('current_sec: ' + str(current_sec))
+            print('lost_time_sec: ' + str(lost_time_sec))
+            print('result_instance.period: ' + str(result_instance.period))
+
+            print('full_length: '+str(int((current_sec - lost_time_sec) / result_instance.period)))
+            print('value: ' + str(value))
             ResultOneMinute.create_list(result_instance.value, (current_sec - lost_time_sec) / result_instance.period, value)
         else:
             my_list = json.loads(result_instance.value)
@@ -85,7 +98,7 @@ class ResultOneMinute(models.Model):
             for v in my_list:
                 sum_v += v
             mean = sum_v / my_list.len
-            Result.add(tag=tag, value=mean, status=1)
+            # Result.add(tag=tag, value=mean, status=1)
             result_instance.lost_time = timezone.now()
             result_instance.value = '[]'
             result_instance.save()
@@ -127,7 +140,7 @@ class MessageBit(models.Model):
 
 class MessageEvent(models.Model):
     bit = models.ForeignKey(MessageBit, on_delete=models.CASCADE)
-    event_dt = models.DateTimeField(default=timezone.now())
+    event_dt = models.DateTimeField(default=timezone.now)
     ask_dt = models.DateTimeField(blank=True, null=True)
 
     def text(self):

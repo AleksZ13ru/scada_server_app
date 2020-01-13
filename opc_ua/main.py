@@ -1,4 +1,6 @@
 from __future__ import absolute_import
+
+import socket
 import sys
 from opc_ua.models import Server, Tag, Result, ResultOneMinute, MessageTag, MessageEvent
 from opcua import Client
@@ -24,7 +26,7 @@ def read_opc_ua():
                 value = var.get_value()
                 if type(value) == float:
                     value = round(value, 2)
-                # Result.add(tag=tag, value=value, status=1)
+                Result.add(tag=tag, value=value, status=1)
                 ResultOneMinute.add(tag=tag, value=value, status=1)
                 print("{0} = {1}".format(tag.name, value))
 
@@ -41,5 +43,10 @@ def read_opc_ua():
                         MessageEvent.ask(tag=tag, bit=idx)
         except AttributeError:
             pass
-        finally:
+        except socket.error as err:
+            print(err.args)
+        else:
             client.disconnect()
+        finally:
+            pass
+            # client.disconnect()

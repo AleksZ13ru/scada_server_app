@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Server, Tag, Result, MessageTag, MessageBit, MessageEvent
+from .models import Server, Tag, Result, ResultOneMinute, MessageTag, MessageBit, MessageEvent
 
 
 class ServerAdmin(admin.ModelAdmin):
@@ -12,6 +12,10 @@ class TagAdmin(admin.ModelAdmin):
 
 class ResultAdmin(admin.ModelAdmin):
     list_display = ('tag_name', 'date', 'display_len',)
+
+
+class ResultOneMinuteAdmin(admin.ModelAdmin):
+    list_display = ('tag_name', 'lost_time', 'display_len',)
 
 
 class MessageTagAdmin(admin.ModelAdmin):
@@ -29,6 +33,7 @@ class MessageEventAdmin(admin.ModelAdmin):
 admin.site.register(Server, ServerAdmin)
 admin.site.register(Tag, TagAdmin)
 admin.site.register(Result, ResultAdmin)
+admin.site.register(ResultOneMinute, ResultOneMinuteAdmin)
 
 admin.site.register(MessageTag, MessageTagAdmin)
 admin.site.register(MessageBit, MessageBitAdmin)
